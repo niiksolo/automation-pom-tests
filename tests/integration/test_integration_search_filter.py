@@ -9,6 +9,7 @@ import os
 from dotenv import load_dotenv
 from bs4 import BeautifulSoup
 
+
 load_dotenv()
 email = os.getenv('SITE_LOGIN')
 password = os.getenv('SITE_PASSWORD')

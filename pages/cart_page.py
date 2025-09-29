@@ -21,7 +21,7 @@ class CartPage(BasePage):
 
     def delete_one_product(self):
         """Удалить один товар из корзины"""
-        self.click_clickable_element(self.locator_delete_one_product)
+        self.safe_action(lambda: self.click_clickable_element(self.locator_delete_one_product))
 
     def check_count_cart_several_product(self):
         """Посмотреть сколько товаров всего в корзине"""
@@ -34,10 +34,10 @@ class CartPage(BasePage):
         return self.driver.find_element(*self.locator_cart_counter).text
 
     def is_cart_empty(self, timeout=5) -> bool:
-        """Возвращает True, если корзина пуста, False если есть товары"""
         try:
-            WebDriverWait(self.driver, timeout=5).until(
-                EC.presence_of_element_located(self.locator_cart_is_empty))
+            WebDriverWait(self.driver, timeout).until(
+                EC.presence_of_element_located(self.locator_cart_is_empty)
+            )
             return False
         except:
             return True

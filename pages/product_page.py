@@ -10,7 +10,7 @@ class ProductPage(BasePage):
 
     def add_product_to_cart(self):
         """Добавляем первый товар по списку в корзину"""
-        self.click_clickable_element(self.locator_add_product_to_cart_1)
+        self.safe_action(lambda: self.click_clickable_element(self.locator_add_product_to_cart_1))
 
     def add_second_product_to_cart(self):
         """Добавляем второй товар по списку в корзину"""

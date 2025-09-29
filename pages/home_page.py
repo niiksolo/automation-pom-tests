@@ -32,8 +32,14 @@ class HomePage(BasePage):
         """ ВВодим текст в поиск и нажимаем кнопку поиска """
         self.send_keys_to_element(self.locator_search, text)
         self.click_clickable_element(self.locator_search_button)
+        self.wait_until_loaded()
 
-    def wait_until_loaded(self):
-        self.wait.until(EC.visibility_of_element_located(self.locator_search))
+    def wait_until_loaded(self, timeout=10):
+        WebDriverWait(self.driver, timeout).until(
+            EC.presence_of_element_located(self.locator_search)
+        )
+        WebDriverWait(self.driver, timeout).until(
+            EC.element_to_be_clickable(self.locator_search)
+        )
 
 

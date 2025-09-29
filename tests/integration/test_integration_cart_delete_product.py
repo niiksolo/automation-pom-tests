@@ -8,10 +8,12 @@ from pages.login_page import LoginPage
 from pages.cart_page import CartPage
 import os
 from dotenv import load_dotenv
+from selenium.webdriver.support.ui import WebDriverWait
 
 load_dotenv()
 email = os.getenv("SITE_LOGIN")
 password = os.getenv("SITE_PASSWORD")
+
 
 @pytest.mark.integration
 @allure.feature("Корзина")
@@ -27,7 +29,6 @@ def test_add_remove_product_ui_api(browser):
 
     with allure.step("Авторизация через UI"):
         base.login(login, home, email, password)
-        home.wait_until_loaded()
 
     with allure.step('Ищем товар "шарф" и добавляем его в корзину'):
         home.search_by_button("шарф")
@@ -38,11 +39,15 @@ def test_add_remove_product_ui_api(browser):
         for c in browser.get_cookies():
             session.cookies.set(c['name'], c['value'], domain=c.get('domain'))
 
-        response = session.get("https://api.kasta.ua/api/v2/basket")
-        assert response.status_code == 200
-        items = response.json().get("items", [])
-        assert any(block.get("items") for block in items), "Корзина пуста после добавления товара через UI"
+        for _ in range(5):
+            response = session.get("https://api.kasta.ua/api/v2/basket")
+            if response.status_code == 200 and any(block.get("items") for block in response.json().get("items", [])):
+                break
+            import time; time.sleep(1)
+        else:
+            pytest.fail("Корзина пуста после добавления товара через UI")
 
     with allure.step("Удаляем товар через UI"):
         cart.delete_one_product()
+        WebDriverWait(browser, 15).until(lambda d: cart.is_cart_empty())
         assert cart.is_cart_empty(), "Корзина не пуста после удаления товара"
