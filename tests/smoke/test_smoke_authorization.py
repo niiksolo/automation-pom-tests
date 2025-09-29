@@ -9,8 +9,8 @@ from selenium.webdriver.common.by import By
 
 
 load_dotenv()
-email = os.getenv("USER_EMAIL")
-password = os.getenv("USER_PASSWORD")
+email = os.getenv("SITE_LOGIN")
+password = os.getenv("SITE_PASSWORD")
 
 @pytest.mark.smoke
 @allure.feature("Авторизация")

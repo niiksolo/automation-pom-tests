@@ -10,8 +10,8 @@ from dotenv import load_dotenv
 from selenium.webdriver.support import expected_conditions as EC
 
 load_dotenv()
-email = os.getenv("USER_EMAIL")
-password = os.getenv("USER_PASSWORD")
+email = os.getenv("SITE_LOGIN")
+password = os.getenv("SITE_PASSWORD")
 
 @pytest.mark.integration
 @allure.feature("Корзина")
