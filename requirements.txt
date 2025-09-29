@@ -1,0 +1,7 @@
+selenium
+pytest
+pytest-xdist
+allure-pytest
+requests
+python-dotenv
+beautifulsoup4
