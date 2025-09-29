@@ -14,9 +14,6 @@ jobs:
       IMAGE_NAME: qa_tests_image
       IMAGE_TAG: latest
       REPORT_DIR: allure-report
-      SITE_LOGIN: ${{ secrets.TEST_LOGIN }}
-      SITE_PASSWORD: ${{ secrets.TEST_PASSWORD }}
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -33,12 +30,12 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} .
+          docker build -t $IMAGE_NAME:$IMAGE_TAG .
 
       - name: Push Docker image to GHCR
         run: |
-          docker tag ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} ghcr.io/${{ github.repository }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
-          docker push ghcr.io/${{ github.repository }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+          docker tag $IMAGE_NAME:$IMAGE_TAG ghcr.io/${{ github.repository }}/$IMAGE_NAME:$IMAGE_TAG
+          docker push ghcr.io/${{ github.repository }}/$IMAGE_NAME:$IMAGE_TAG
 
   smoke-tests:
     runs-on: ubuntu-latest
@@ -47,7 +44,9 @@ jobs:
       - uses: actions/checkout@v3
       - name: Run Smoke Tests
         run: |
-          docker run --rm -e SITE_LOGIN=${{ env.SITE_LOGIN }} -e SITE_PASSWORD=${{ env.SITE_PASSWORD }} \
+          docker run --rm \
+          -e SITE_LOGIN=${{ secrets.TEST_LOGIN }} \
+          -e SITE_PASSWORD=${{ secrets.TEST_PASSWORD }} \
           -v $PWD/allure-report:/app/allure-report ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} \
           sh -c "pytest tests/smoke --alluredir=allure-report --tb=short"
 
@@ -58,7 +57,9 @@ jobs:
       - uses: actions/checkout@v3
       - name: Run Integration Tests
         run: |
-          docker run --rm -e SITE_LOGIN=${{ env.SITE_LOGIN }} -e SITE_PASSWORD=${{ env.SITE_PASSWORD }} \
+          docker run --rm \
+          -e SITE_LOGIN=${{ secrets.TEST_LOGIN }} \
+          -e SITE_PASSWORD=${{ secrets.TEST_PASSWORD }} \
           -v $PWD/allure-report:/app/allure-report ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} \
           sh -c "pytest tests/integration --alluredir=allure-report --tb=short"
 
@@ -69,7 +70,9 @@ jobs:
       - uses: actions/checkout@v3
       - name: Run Regression Tests
         run: |
-          docker run --rm -e SITE_LOGIN=${{ env.SITE_LOGIN }} -e SITE_PASSWORD=${{ env.SITE_PASSWORD }} \
+          docker run --rm \
+          -e SITE_LOGIN=${{ secrets.TEST_LOGIN }} \
+          -e SITE_PASSWORD=${{ secrets.TEST_PASSWORD }} \
           -v $PWD/allure-report:/app/allure-report ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} \
           sh -c "pytest tests/regression --alluredir=allure-report --tb=short"
 
@@ -80,7 +83,9 @@ jobs:
       - uses: actions/checkout@v3
       - name: Generate Allure HTML report
         run: |
-          docker run --rm -v $PWD/allure-report:/app/allure-report -v $PWD/allure-report/allure-html:/app/allure-html \
+          docker run --rm \
+          -v $PWD/allure-report:/app/allure-report \
+          -v $PWD/allure-report/allure-html:/app/allure-html \
           ghcr.io/allure/allure:2.22.1 generate /app/allure-report -o /app/allure-html
       - name: Upload Allure report as artifact
         uses: actions/upload-artifact@v3
