@@ -13,8 +13,7 @@ from pages.cart_page import CartPage
 load_dotenv()
 email = os.getenv("SITE_LOGIN")
 password = os.getenv("SITE_PASSWORD")
-
-@pytest.mark.skip(reason="Тест нестабильный из-за динамического локатора кнопки удаления товара, требует доработки CartPage")
+@pytest.mark.skipif(True, reason="Тест нестабильный из-за динамического локатора кнопки удаления товара, временно пропускаем в CI/CD")
 @pytest.mark.integration
 @allure.feature("Корзина")
 @allure.story("UI - API интеграция")
