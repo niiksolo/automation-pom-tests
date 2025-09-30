@@ -14,6 +14,10 @@ env:
   SITE_PASSWORD: ${{ secrets.TEST_PASSWORD }}
   CI: true
 
+permissions:
+  contents: read
+  id-token: write
+
 jobs:
   # -------------------
   # 1. Smoke Tests
@@ -34,7 +38,7 @@ jobs:
             -e SITE_PASSWORD=${{ env.SITE_PASSWORD }} \
             -e CI=${{ env.CI }} \
             -v ${{ github.workspace }}/reports:/app/reports \
-            ghcr.io/${{ github.repository }}/$IMAGE_NAME:$IMAGE_TAG \
+            ghcr.io/niiksolo/automation-pom-tests/$IMAGE_NAME:$IMAGE_TAG \
             sh -c "pytest tests/smoke --alluredir=reports/allure --tb=short"
 
   # -------------------
@@ -57,7 +61,7 @@ jobs:
             -e SITE_PASSWORD=${{ env.SITE_PASSWORD }} \
             -e CI=${{ env.CI }} \
             -v ${{ github.workspace }}/reports:/app/reports \
-            ghcr.io/${{ github.repository }}/$IMAGE_NAME:$IMAGE_TAG \
+            ghcr.io/niiksolo/automation-pom-tests/$IMAGE_NAME:$IMAGE_TAG \
             sh -c "pytest tests/integration --alluredir=reports/allure --tb=short"
 
   # -------------------
@@ -80,7 +84,7 @@ jobs:
             -e SITE_PASSWORD=${{ env.SITE_PASSWORD }} \
             -e CI=${{ env.CI }} \
             -v ${{ github.workspace }}/reports:/app/reports \
-            ghcr.io/${{ github.repository }}/$IMAGE_NAME:$IMAGE_TAG \
+            ghcr.io/niiksolo/automation-pom-tests/$IMAGE_NAME:$IMAGE_TAG \
             sh -c "pytest tests/regression --alluredir=reports/allure --tb=short"
 
   # -------------------
@@ -109,4 +113,4 @@ jobs:
       - name: Deploy Allure Report to GitHub Pages
         uses: actions/deploy-pages@v2
         with:
-          path: reports/allure-report
+          artifact_name: allure-report
