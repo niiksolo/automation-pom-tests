@@ -5,7 +5,7 @@ from pages.home_page import HomePage
 import pytest
 import allure
 
-@pytest.mark.skipif
+
 @pytest.mark.smoke
 @allure.feature("Корзина")
 @allure.story("Добавление товара")

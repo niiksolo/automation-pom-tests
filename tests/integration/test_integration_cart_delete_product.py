@@ -13,6 +13,10 @@ from pages.cart_page import CartPage
 load_dotenv()
 email = os.getenv("SITE_LOGIN")
 password = os.getenv("SITE_PASSWORD")
+
+skip_on_ci = os.getenv("CI") == "true"
+
+@pytest.mark.skipif(skip_on_ci, reason="Пропуск на CI")
 @pytest.mark.skipif(True, reason="Тест нестабильный из-за динамического локатора кнопки удаления товара, временно пропускаем в CI/CD")
 @pytest.mark.integration
 @allure.feature("Корзина")

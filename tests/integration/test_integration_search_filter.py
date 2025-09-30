@@ -13,6 +13,8 @@ load_dotenv()
 email = os.getenv('SITE_LOGIN')
 password = os.getenv('SITE_PASSWORD')
 
+skip_on_ci = os.getenv("CI") == "true"
+
 
 @pytest.mark.integration
 @allure.feature("Поиск")
@@ -33,7 +35,6 @@ def test_search_filter_ui_api(browser):
         product.select_sale_product()
 
     with allure.step("Проверка фильтра через HTML ответа"):
-        # Создаем сессию и переносим куки из браузера
         session = requests.Session()
         for c in browser.get_cookies():
             session.cookies.set(c['name'], c['value'], domain=c.get('domain'))

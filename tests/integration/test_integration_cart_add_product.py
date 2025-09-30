@@ -13,6 +13,8 @@ load_dotenv()
 email = os.getenv("SITE_LOGIN")
 password = os.getenv("SITE_PASSWORD")
 
+skip_on_ci = os.getenv("CI") == "true"
+
 @pytest.mark.skipif(True, reason="тест локально работает в CICD никак")
 @pytest.mark.integration
 @allure.feature("Корзина")
@@ -49,10 +51,9 @@ def test_add_product_ui_api(browser):
             )
 
             if total_items > 0:
-                break  # товар добавлен, продолжаем тест
+                break
             else:
                 allure.step(f"Попытка {attempt + 1}/{max_attempts}: корзина пуста, ждём 1 сек.")
                 time.sleep(1)
         else:
-            # Если по истечении всех попыток корзина пуста — падаем
             pytest.fail(f"Корзина пуста после {max_attempts} попыток, товар не добавился через UI")

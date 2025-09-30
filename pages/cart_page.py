@@ -51,7 +51,7 @@ class CartPage(BasePage):
                 EC.invisibility_of_element_located(self.locator_delete_button)
             )
         except TimeoutException:
-            pass  # если не исчезла — продолжаем
+            pass
 
     def is_cart_empty(self) -> bool:
         """Проверка, что корзина пуста"""
