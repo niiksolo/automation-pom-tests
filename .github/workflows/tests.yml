@@ -98,18 +98,19 @@ jobs:
           sudo apt install -y unzip curl
           ALLURE_VERSION=2.27.0
           curl -Lo allure.zip https://github.com/allure-framework/allure2/releases/download/${ALLURE_VERSION}/allure-${ALLURE_VERSION}.zip
-          unzip allure.zip -d $HOME/allure
+          unzip -q allure.zip -d $HOME/allure
           echo "$HOME/allure/allure-${ALLURE_VERSION}/bin" >> $GITHUB_PATH
 
       - name: Generate Allure HTML Report
         run: |
           rm -rf reports/allure-report
           mkdir -p reports/allure-report
-          allure generate reports/allure -o reports/allure-report --clean
+          allure generate reports/allure --clean -o reports/allure-report
 
-      - name: Clean Allure report for GitHub Pages
+      - name: Remove symlinks and hidden files
         run: |
-          find reports/allure-report -type l -exec rm {} +
+          find reports/allure-report -type l -delete
+          find reports/allure-report -name ".*" -delete
 
       - name: Upload Allure Report Artifact
         uses: actions/upload-artifact@v4
