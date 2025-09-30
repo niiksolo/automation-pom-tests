@@ -14,6 +14,7 @@ invalid_data = [
 @allure.feature("Поиск")
 @allure.story("Негативные проверки")
 @allure.title("Негативные проверки поиска товаров")
+
 def test_search_invalid(browser, product):
     home = HomePage(browser)
 

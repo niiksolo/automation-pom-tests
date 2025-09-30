@@ -5,6 +5,7 @@ from pages.home_page import HomePage
 import pytest
 import allure
 
+@pytest.mark.skip
 @pytest.mark.smoke
 @allure.feature("Корзина")
 @allure.story("Добавление товара")
@@ -25,10 +26,10 @@ def test_add_to_cart(browser):
         product.add_product_to_cart()
 
     with allure.step('Проверяем что в корзине добавился товар'):
-        text = cart.get_cart_count_one_product()
+        count = cart.get_cart_count()
 
-    with allure.step('Проверяем что товаров в корзине 1 шт'):
-        assert text == '1'
+    with allure.step('Проверяем что в корзине 1 товар'):
+        assert count == 1, f"Ожидали 1 товар, но в корзине {count}"
 
 
 

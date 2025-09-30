@@ -6,6 +6,7 @@ from selenium.webdriver.common.by import By
 @pytest.mark.regression
 @allure.feature("Поиск")
 @allure.story("Негативный сценарий: пустой поиск")
+
 def test_empty_search_validation_message(browser):
     home = HomePage(browser)
 

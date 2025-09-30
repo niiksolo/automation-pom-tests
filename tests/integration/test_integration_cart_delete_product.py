@@ -17,7 +17,7 @@ password = os.getenv("SITE_PASSWORD")
 @pytest.mark.skip(reason="Тест нестабильный из-за динамического локатора кнопки удаления товара, требует доработки CartPage")
 @pytest.mark.integration
 @allure.feature("Корзина")
-@allure.story("UI ↔ API интеграция")
+@allure.story("UI - API интеграция")
 @allure.title("Добавление товара через UI, проверка через API, удаление через UI и проверка корзины")
 
 def test_add_remove_product_ui_api(browser):

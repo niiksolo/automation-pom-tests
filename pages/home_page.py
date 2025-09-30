@@ -7,31 +7,25 @@ from selenium.webdriver.support import expected_conditions as EC
 class HomePage(BasePage):
     locator_catalog = (By.XPATH, '//span[@class="menu__label"]')
     locator_catalog_odezhda = (By.XPATH, '(//a[@class="menu-vertical__link"])[1]')
-    locator_profile = (By.XPATH, "//div[@id='hUser']")
+    locator_profile = (By.ID, 'hUser')
     locator_search = (By.XPATH, "//input[@type='search']")
     locator_search_button = (By.XPATH, "//button[@type='submit']")
 
-
     def open_main_page(self):
-        """Открываем главную страницу сайта"""
         self.open_url(BASE_URL)
 
     def open_catalog(self):
-        """Открываем каталог"""
-        self.click_clickable_element(self.locator_catalog)
+        self.safe_click(self.locator_catalog)
 
     def click_odezhda_in_catalog(self):
-        """Нажимаем категорию 'Одежда'"""
-        self.click_clickable_element(self.locator_catalog_odezhda)
+        self.safe_click(self.locator_catalog_odezhda)
 
     def click_profile_on_main_page(self):
-        """Нажимаем на иконку 'Профиль'"""
-        self.click_clickable_element(self.locator_profile)
+        self.safe_click(self.locator_profile)
 
     def search_by_button(self, text: str):
-        """Вводим текст и нажимаем кнопку поиска"""
-        self.send_keys_to_element(self.locator_search, text)
-        self.click_clickable_element(self.locator_search_button)
+        self.safe_send_keys(self.locator_search, text)
+        self.safe_click(self.locator_search_button)
         self.wait_until_loaded()
 
     def wait_until_loaded(self, timeout=10):
