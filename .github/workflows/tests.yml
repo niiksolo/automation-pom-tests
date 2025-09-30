@@ -78,48 +78,35 @@ jobs:
             ghcr.io/${{ github.repository }}/$IMAGE_NAME:$IMAGE_TAG \
             sh -c "pytest tests/regression --alluredir=reports/allure --tb=short"
 
-  generate-allure-report:
+  allure-report:
     runs-on: ubuntu-latest
-    needs: [smoke-tests, integration-tests, regression-tests]
+    needs: [ smoke-tests, integration-tests, regression-tests ]
     steps:
       - uses: actions/checkout@v3
 
-      - name: Download Allure Results
-        uses: actions/download-artifact@v4
-        with:
-          name: allure-results
-          path: reports/allure
-
-      - name: Install Allure CLI
+      - name: Install Allure
         run: |
-          wget https://github.com/allure-framework/allure2/releases/download/2.27.0/allure-2.27.0.tgz
-          tar -xzf allure-2.27.0.tgz
+          sudo apt update
+          sudo apt install -y unzip curl
+          ALLURE_VERSION=2.27.0
+          curl -Lo allure.zip https://github.com/allure-framework/allure2/releases/download/${ALLURE_VERSION}/allure-${ALLURE_VERSION}.zip
+          unzip allure.zip -d $HOME/allure
+          export PATH=$HOME/allure/allure-${ALLURE_VERSION}/bin:$PATH
+          allure --version
 
-      - name: Generate Allure Report
+      - name: Generate Allure HTML Report
         run: |
-          ./allure-2.27.0/bin/allure generate reports/allure --clean -o public
+          mkdir -p reports/allure-report
+          allure generate reports/allure -o reports/allure-report --clean
 
-      - name: Upload Report Artifact
-        uses: actions/upload-artifact@v4
+      - name: Upload Allure Report Artifact
+        uses: actions/upload-pages-artifact@v1
         with:
-          name: allure-report
-          path: public
+          path: reports/allure-report
 
-  deploy-allure-report:
-    runs-on: ubuntu-latest
-    needs: generate-allure-report
-    permissions:
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          name: allure-report
-          path: public
-
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+    deploy-allure:
+      needs: allure-report
+      runs-on: ubuntu-latest
+      steps:
+        - name: Deploy Allure Report to GitHub Pages
+          uses: actions/deploy-pages@v1
