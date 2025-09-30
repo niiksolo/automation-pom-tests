@@ -29,16 +29,12 @@ jobs:
         run: |
           echo "${{ secrets.DOCKER_PASSWORD }}" | docker login ghcr.io -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-      - name: Pull or Build Docker image
+      - name: Build Docker image
         run: |
-          if ! docker pull ghcr.io/${{ github.repository }}/$IMAGE_NAME:$IMAGE_TAG; then
-            echo "Image not found, building..."
-            docker build -t $IMAGE_NAME:$IMAGE_TAG .
-            docker tag $IMAGE_NAME:$IMAGE_TAG ghcr.io/${{ github.repository }}/$IMAGE_NAME:$IMAGE_TAG
-            docker push ghcr.io/${{ github.repository }}/$IMAGE_NAME:$IMAGE_TAG
-          else
-            echo "Image pulled successfully."
-          fi
+          echo "Building Docker image from scratch..."
+          docker build -t $IMAGE_NAME:$IMAGE_TAG .
+          docker tag $IMAGE_NAME:$IMAGE_TAG ghcr.io/${{ github.repository }}/$IMAGE_NAME:$IMAGE_TAG
+          docker push ghcr.io/${{ github.repository }}/$IMAGE_NAME:$IMAGE_TAG
 
   smoke-tests:
     runs-on: ubuntu-latest
