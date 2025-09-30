@@ -104,9 +104,9 @@ jobs:
         with:
           path: reports/allure-report
 
-    deploy-allure:
-      needs: allure-report
-      runs-on: ubuntu-latest
-      steps:
-        - name: Deploy Allure Report to GitHub Pages
-          uses: actions/deploy-pages@v1
+  deploy-allure:
+    needs: allure-report
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy Allure Report to GitHub Pages
+        uses: actions/deploy-pages@v1
