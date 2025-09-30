@@ -10,7 +10,6 @@ on:
 env:
   IMAGE_NAME: qa_tests_image
   IMAGE_TAG: latest
-  REPORT_DIR: allure-report
   SITE_LOGIN: ${{ secrets.TEST_LOGIN }}
   SITE_PASSWORD: ${{ secrets.TEST_PASSWORD }}
   CI: true
@@ -29,40 +28,71 @@ jobs:
         run: |
           echo "${{ secrets.DOCKER_PASSWORD }}" | docker login ghcr.io -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-      - name: Build and Push Docker Image
+      - name: Build and push Docker image
         run: |
           docker build -t $IMAGE_NAME:$IMAGE_TAG .
           docker tag $IMAGE_NAME:$IMAGE_TAG ghcr.io/${{ github.repository }}/$IMAGE_NAME:$IMAGE_TAG
           docker push ghcr.io/${{ github.repository }}/$IMAGE_NAME:$IMAGE_TAG
 
-  run-tests:
+  smoke-tests:
     runs-on: ubuntu-latest
     needs: build-and-push
     steps:
       - uses: actions/checkout@v3
-
-      - name: Run All Tests in Docker
+      - name: Run Smoke Tests
         run: |
           echo "${{ secrets.DOCKER_PASSWORD }}" | docker login ghcr.io -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
           docker run --rm \
             -e SITE_LOGIN=${{ env.SITE_LOGIN }} \
             -e SITE_PASSWORD=${{ env.SITE_PASSWORD }} \
             -e CI=${{ env.CI }} \
-            -v $PWD/allure-report:/app/allure-report \
+            -v $PWD/reports:/app/reports \
             ghcr.io/${{ github.repository }}/$IMAGE_NAME:$IMAGE_TAG \
-            sh -c "pytest tests --alluredir=allure-report --tb=short"
+            sh -c "pytest tests/smoke --alluredir=reports/allure --tb=short"
 
-  deploy-allure-report:
+  integration-tests:
     runs-on: ubuntu-latest
-    needs: run-tests
+    needs: smoke-tests
     steps:
       - uses: actions/checkout@v3
+      - name: Run Integration Tests
+        run: |
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login ghcr.io -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+          docker run --rm \
+            -e SITE_LOGIN=${{ env.SITE_LOGIN }} \
+            -e SITE_PASSWORD=${{ env.SITE_PASSWORD }} \
+            -e CI=${{ env.CI }} \
+            -v $PWD/reports:/app/reports \
+            ghcr.io/${{ github.repository }}/$IMAGE_NAME:$IMAGE_TAG \
+            sh -c "pytest tests/integration --alluredir=reports/allure --tb=short"
 
+  regression-tests:
+    runs-on: ubuntu-latest
+    needs: integration-tests
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run Regression Tests
+        run: |
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login ghcr.io -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+          docker run --rm \
+            -e SITE_LOGIN=${{ env.SITE_LOGIN }} \
+            -e SITE_PASSWORD=${{ env.SITE_PASSWORD }} \
+            -e CI=${{ env.CI }} \
+            -v $PWD/reports:/app/reports \
+            ghcr.io/${{ github.repository }}/$IMAGE_NAME:$IMAGE_TAG \
+            sh -c "pytest tests/regression --alluredir=reports/allure --tb=short"
+
+  publish-allure-report:
+    runs-on: ubuntu-latest
+    needs: [smoke-tests, integration-tests, regression-tests]
+    steps:
+      - uses: actions/checkout@v3
       - name: Deploy Allure Report to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v6
+        uses: peaceiris/actions-gh-pages@v5
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./allure-report
+          publish_dir: reports/allure
           publish_branch: gh-pages
           user_name: github-actions
           user_email: github-actions@github.com
+          keep_files: true
