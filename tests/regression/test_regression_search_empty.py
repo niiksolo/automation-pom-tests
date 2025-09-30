@@ -6,7 +6,6 @@ from selenium.webdriver.common.by import By
 @pytest.mark.regression
 @allure.feature("Поиск")
 @allure.story("Негативный сценарий: пустой поиск")
-
 def test_empty_search_validation_message(browser):
     home = HomePage(browser)
 
@@ -20,5 +19,6 @@ def test_empty_search_validation_message(browser):
 
     with allure.step("Проверяем встроенное сообщение браузера о пустом поле"):
         validation_msg = search_input.get_attribute("validationMessage")
-        assert validation_msg == "Заполните это поле.", \
-            f'Ожидали "Заполните это поле.", но получили "{validation_msg}"'
+        expected_messages = ["Заполните это поле.", "Please fill out this field."]
+        assert validation_msg in expected_messages, \
+            f'Ожидали одно из {expected_messages}, но получили "{validation_msg}"'
