@@ -83,7 +83,7 @@ jobs:
             ghcr.io/${{ github.repository }}/$IMAGE_NAME:$IMAGE_TAG \
             sh -c "pytest tests/regression --alluredir=allure-report --tb=short"
 
-  generate-allure-report:
+  allure-report:
     runs-on: ubuntu-latest
     needs: [smoke-tests, integration-tests, regression-tests]
     steps:
@@ -93,7 +93,7 @@ jobs:
           docker run --rm \
             -v $PWD/allure-report:/app/allure-report \
             -v $PWD/allure-report/allure-html:/app/allure-html \
-            ghcr.io/allure/allure:2.22.1 generate /app/allure-report -o /app/allure-html
+            allure/allure:2.27.0 generate /app/allure-report -o /app/allure-html
       - name: Upload Allure report as artifact
         uses: actions/upload-artifact@v4
         with:
