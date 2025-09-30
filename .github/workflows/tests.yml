@@ -2,9 +2,9 @@ name: QA Tests Pipeline
 
 on:
   push:
-    branches: [main]
+    branches: [ main ]
   pull_request:
-    branches: [main]
+    branches: [ main ]
   workflow_dispatch:
 
 env:
@@ -103,8 +103,13 @@ jobs:
 
       - name: Generate Allure HTML Report
         run: |
+          rm -rf reports/allure-report
           mkdir -p reports/allure-report
           allure generate reports/allure -o reports/allure-report --clean
+
+      - name: Clean Allure report for GitHub Pages
+        run: |
+          find reports/allure-report -type l -exec rm {} +
 
       - name: Upload Allure Report Artifact
         uses: actions/upload-artifact@v4
@@ -113,23 +118,21 @@ jobs:
           path: reports/allure-report
 
   # -------------------
-  # 5. Deploy Allure Report to GitHub Pages
+  # 5. Deploy to GitHub Pages
   # -------------------
   deploy-pages:
     runs-on: ubuntu-latest
     needs: allure-report
     permissions:
+      contents: read
       pages: write
       id-token: write
     steps:
-      - name: Download Allure Report
-        uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v4
         with:
           name: allure-report
           path: public
 
-      - name: Deploy to GitHub Pages
+      - name: Deploy Allure Report to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-        with:
-          artifact_name: allure-report
