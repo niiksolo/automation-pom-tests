@@ -29,6 +29,7 @@ jobs:
 
       - name: Run Smoke Tests
         run: |
+          mkdir -p reports/allure
           docker run --rm \
             -e SITE_LOGIN=${{ env.SITE_LOGIN }} \
             -e SITE_PASSWORD=${{ env.SITE_PASSWORD }} \
@@ -52,6 +53,7 @@ jobs:
 
       - name: Run Integration Tests
         run: |
+          mkdir -p reports/allure
           docker run --rm \
             -e SITE_LOGIN=${{ env.SITE_LOGIN }} \
             -e SITE_PASSWORD=${{ env.SITE_PASSWORD }} \
@@ -75,6 +77,7 @@ jobs:
 
       - name: Run Regression Tests
         run: |
+          mkdir -p reports/allure
           docker run --rm \
             -e SITE_LOGIN=${{ env.SITE_LOGIN }} \
             -e SITE_PASSWORD=${{ env.SITE_PASSWORD }} \
@@ -98,19 +101,18 @@ jobs:
           sudo apt install -y unzip curl
           ALLURE_VERSION=2.27.0
           curl -Lo allure.zip https://github.com/allure-framework/allure2/releases/download/${ALLURE_VERSION}/allure-${ALLURE_VERSION}.zip
-          unzip -q allure.zip -d $HOME/allure
+          unzip allure.zip -d $HOME/allure
           echo "$HOME/allure/allure-${ALLURE_VERSION}/bin" >> $GITHUB_PATH
 
       - name: Generate Allure HTML Report
         run: |
           rm -rf reports/allure-report
           mkdir -p reports/allure-report
-          allure generate reports/allure --clean -o reports/allure-report
+          allure generate reports/allure -o reports/allure-report --clean
 
-      - name: Remove symlinks and hidden files
+      - name: Clean Allure report for GitHub Pages
         run: |
-          find reports/allure-report -type l -delete
-          find reports/allure-report -name ".*" -delete
+          find reports/allure-report -type l -exec rm {} +
 
       - name: Upload Allure Report Artifact
         uses: actions/upload-artifact@v4
