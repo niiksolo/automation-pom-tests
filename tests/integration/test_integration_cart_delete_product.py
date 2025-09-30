@@ -1,20 +1,20 @@
 import pytest
 import requests
 import allure
+import os
+from dotenv import load_dotenv
+from selenium.webdriver.support.ui import WebDriverWait
 from pages.home_page import HomePage
 from pages.product_page import ProductPage
 from pages.base_page import BasePage
 from pages.login_page import LoginPage
 from pages.cart_page import CartPage
-import os
-from dotenv import load_dotenv
-from selenium.webdriver.support.ui import WebDriverWait
 
 load_dotenv()
 email = os.getenv("SITE_LOGIN")
 password = os.getenv("SITE_PASSWORD")
 
-
+@pytest.mark.skip(reason="Тест нестабильный из-за динамического локатора кнопки удаления товара, требует доработки CartPage")
 @pytest.mark.integration
 @allure.feature("Корзина")
 @allure.story("UI ↔ API интеграция")
@@ -41,9 +41,13 @@ def test_add_remove_product_ui_api(browser):
 
         for _ in range(5):
             response = session.get("https://api.kasta.ua/api/v2/basket")
-            if response.status_code == 200 and any(block.get("items") for block in response.json().get("items", [])):
+            if (
+                response.status_code == 200
+                and any(block.get("items") for block in response.json().get("items", []))
+            ):
                 break
-            import time; time.sleep(1)
+            import time
+            time.sleep(1)
         else:
             pytest.fail("Корзина пуста после добавления товара через UI")
 

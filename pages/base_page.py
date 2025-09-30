@@ -1,8 +1,7 @@
+import time
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-import time
-from selenium.common.exceptions import StaleElementReferenceException
-
+from selenium.common.exceptions import StaleElementReferenceException, TimeoutException
 
 class BasePage:
     def __init__(self, driver, timeout=10):
@@ -12,13 +11,16 @@ class BasePage:
     def open_url(self, url):
         self.driver.get(url)
 
-    def safe_action(self, func, retries=3, wait_between=0.5):
+    def safe_find(self, locator, timeout=10, retries=3):
+        """Ищем элемент с повторами при StaleElementReference"""
         for attempt in range(retries):
             try:
-                return func()
+                return WebDriverWait(self.driver, timeout).until(
+                    EC.presence_of_element_located(locator)
+                )
             except StaleElementReferenceException:
                 if attempt < retries - 1:
-                    time.sleep(wait_between)
+                    time.sleep(0.5)
                 else:
                     raise
 
@@ -31,7 +33,7 @@ class BasePage:
                 return
             except StaleElementReferenceException:
                 if attempt < retries - 1:
-                    time.sleep(1)
+                    time.sleep(0.5)
                 else:
                     raise
 
@@ -41,14 +43,16 @@ class BasePage:
                 element = self.wait.until(EC.element_to_be_clickable(locator))
                 element.click()
                 return
-            except StaleElementReferenceException:
+            except (StaleElementReferenceException, TimeoutException):
                 if attempt < retries - 1:
-                    time.sleep(1)
+                    time.sleep(0.5)
                 else:
                     raise
 
-    def is_element_visible(self, locator):
-        return self.wait.until(EC.visibility_of_element_located(locator))
+    def is_element_visible(self, locator, timeout=10):
+        return WebDriverWait(self.driver, timeout).until(
+            EC.visibility_of_element_located(locator)
+        )
 
     def wait_text_in_element(self, locator, text, timeout=10):
         return WebDriverWait(self.driver, timeout).until(

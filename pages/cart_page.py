@@ -2,43 +2,51 @@ from pages.base_page import BasePage
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException
 
 class CartPage(BasePage):
-    locator_cart_count_one_product = (By.XPATH, "//span[@class='t-center t-14 lh-20']")
-    locator_delete_one_product = (By.XPATH, "//div[contains(@ts-target, '#cartContent')] [1]")
-    locator_close_cart = (By.XPATH, "//ic[contains(@class, 'popup-close absolute left-0 h-100')]")
-    locator_cart_counter = (By.XPATH, "//div[contains(@class, 't-16 lh-22 expand')]")
-    locator_cart_is_empty = (By.XPATH, "//div[text()='Товар видалено з кошику']")
-
-    def get_cart_count_one_product(self):
-        """Проверяем что в корзине добавился товар и возвращаем текст"""
-        element = self.is_element_visible(self.locator_cart_count_one_product)
-        return element.text
-
-    def close_cart(self):
-        """Закрытие корзины"""
-        self.click_clickable_element(self.locator_close_cart)
+    # Локаторы
+    locator_delete_button = (By.CSS_SELECTOR, "div.ic.bin[role='button']")  # кнопка удаления товара
+    locator_empty_cart = (By.XPATH, "//div[text()='Товар видалено з кошику']")  # надпись о пустой корзине
+    locator_cart_counter = (By.XPATH, "//div[contains(@class, 't-16 lh-22 expand')]")  # счётчик товаров
 
     def delete_one_product(self):
-        """Удалить один товар из корзины"""
-        self.safe_action(lambda: self.click_clickable_element(self.locator_delete_one_product))
+        """
+        Удаляем один товар из корзины и ждём, пока корзина обновится:
+        либо появится надпись о пустой корзине,
+        либо исчезнет кнопка удаления.
+        """
+        # Ждём пока кнопка удаления станет кликабельной
+        delete_btn = WebDriverWait(self.driver, 15).until(
+            EC.element_to_be_clickable(self.locator_delete_button)
+        )
+        delete_btn.click()
 
-    def check_count_cart_several_product(self):
-        """Посмотреть сколько товаров всего в корзине"""
-        element = self.is_element_visible(self.locator_cart_counter)
-        return element.text
+        # Ждём, пока корзина обновится
+        WebDriverWait(self.driver, 15).until(
+            lambda d: len(d.find_elements(*self.locator_empty_cart)) > 0
+                      or len(d.find_elements(*self.locator_delete_button)) == 0
+        )
 
-    def wait_cart_counter(self, expected_count: str, timeout=10):
-        """Ждём пока счётчик корзины покажет нужное количество товаров"""
-        self.wait_text_in_element(self.locator_cart_counter,expected_count,timeout=10)
-        return self.driver.find_element(*self.locator_cart_counter).text
-
-    def is_cart_empty(self, timeout=5) -> bool:
+    def is_cart_empty(self) -> bool:
+        """Проверяем, что корзина пуста"""
         try:
-            WebDriverWait(self.driver, timeout).until(
-                EC.presence_of_element_located(self.locator_cart_is_empty)
+            WebDriverWait(self.driver, 5).until(
+                EC.presence_of_element_located(self.locator_empty_cart)
             )
-            return False
-        except:
             return True
+        except TimeoutException:
+            return False
+
+    def get_cart_count(self) -> int:
+        """Возвращаем количество товаров в корзине"""
+        try:
+            counter = WebDriverWait(self.driver, 5).until(
+                EC.presence_of_element_located(self.locator_cart_counter)
+            )
+            return int(counter.text)
+        except TimeoutException:
+            return 0
+
+
 

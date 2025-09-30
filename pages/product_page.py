@@ -7,10 +7,9 @@ class ProductPage(BasePage):
     locator_add_product_to_cart_2 = (By.XPATH, "(//button[@type='submit']) [3]")
     locator_sale_product = (By.XPATH, "//label[@data-value-id='divchatkam']")
 
-
     def add_product_to_cart(self):
         """Добавляем первый товар по списку в корзину"""
-        self.safe_action(lambda: self.click_clickable_element(self.locator_add_product_to_cart_1))
+        self.click_clickable_element(self.locator_add_product_to_cart_1)
 
     def add_second_product_to_cart(self):
         """Добавляем второй товар по списку в корзину"""
