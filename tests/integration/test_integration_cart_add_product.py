@@ -15,11 +15,12 @@ password = os.getenv("SITE_PASSWORD")
 
 skip_on_ci = os.getenv("CI") == "true"
 
-@pytest.mark.skipif(True, reason="тест локально работает в CICD никак")
+# @pytest.mark.skipif(True, reason="тест локально работает в CICD никак")
 @pytest.mark.integration
 @allure.feature("Корзина")
 @allure.story("UI → API проверка")
 @allure.title("Добавление товара через UI и проверка корзины через API")
+
 def test_add_product_ui_api(browser):
     base = BasePage(browser)
     home = HomePage(browser)

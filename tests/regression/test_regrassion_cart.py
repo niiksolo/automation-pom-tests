@@ -3,6 +3,7 @@ import allure
 from pages.home_page import HomePage
 from pages.product_page import ProductPage
 from pages.cart_page import CartPage
+import os
 
 skip_on_ci = os.getenv("CI") == "true"
 

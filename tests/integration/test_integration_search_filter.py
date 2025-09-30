@@ -13,7 +13,7 @@ load_dotenv()
 email = os.getenv('SITE_LOGIN')
 password = os.getenv('SITE_PASSWORD')
 
-skip_on_ci = os.getenv("CI") == "true"
+# skip_on_ci = os.getenv("CI") == "true"
 
 
 @pytest.mark.integration
