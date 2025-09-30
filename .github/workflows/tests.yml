@@ -108,6 +108,6 @@ jobs:
           allure generate reports/allure -o reports/allure-report --clean
 
       - name: Deploy Allure Report to GitHub Pages
-        uses: actions/pages@v2
+        uses: actions/deploy-pages@v2
         with:
           path: reports/allure-report
