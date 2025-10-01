@@ -1,46 +1,46 @@
 name: CI with Selenium, Pytest and Allure
 
 on:
-  push: # Запускаем пайплайн при пуше
-    branches: [ "main" ] # только в main
-  pull_request: # и при пул-реквестах в main
+  push:
+    branches: [ "main" ]
+  pull_request:
     branches: [ "main" ]
 
 jobs:
   smoke:
-    runs-on: ubuntu-latest # GitHub-hosted runner
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v3 # Клонируем код из репозитория
+        uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.10' # Твой проект работает на 3.10
+          python-version: '3.10'
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt # Устанавливаем зависимости
+          pip install -r requirements.txt
 
       - name: Run Smoke tests
-        run: pytest -m smoke --alluredir=allure-results # Запускаем smoke тесты с allure
+        run: pytest -m smoke --alluredir=allure-results
 
       - name: Upload Allure Results (smoke)
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: allure-results-smoke
-          path: allure-results # Сохраняем артефакты allure
+          path: allure-results
 
   integration:
     runs-on: ubuntu-latest
-    needs: smoke # Этот job запускается только если smoke прошли
+    needs: smoke
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
@@ -53,20 +53,20 @@ jobs:
         run: pytest -m integration --alluredir=allure-results
 
       - name: Upload Allure Results (integration)
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: allure-results-integration
           path: allure-results
 
   regression:
     runs-on: ubuntu-latest
-    needs: integration # Regression запускается только после integration
+    needs: integration
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
@@ -79,48 +79,48 @@ jobs:
         run: pytest -m regression --alluredir=allure-results
 
       - name: Upload Allure Results (regression)
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: allure-results-regression
           path: allure-results
 
   allure-report:
     runs-on: ubuntu-latest
-    needs: regression # Только после regression
+    needs: regression
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Download Allure Results
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: allure-results-regression
           path: allure-results
 
       - name: Generate Allure Report
         run: |
-          npm install -g allure-commandline --save-dev # Устанавливаем allure-cli через npm
-          allure generate allure-results --clean -o allure-report # Генерируем статический отчёт
+          npm install -g allure-commandline --save-dev
+          allure generate allure-results --clean -o allure-report
 
       - name: Upload Allure Report artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: allure-report
-          path: allure-report # Сохраняем HTML отчёт
+          path: allure-report
 
   deploy-pages:
     runs-on: ubuntu-latest
-    needs: allure-report # Деплой только после генерации отчёта
+    needs: allure-report
     permissions:
       contents: read
       pages: write
       id-token: write
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Download Allure Report
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: allure-report
           path: ./allure-report
