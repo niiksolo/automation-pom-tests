@@ -1,18 +1,22 @@
-# Automation POM Tests
+# 🔗 Automation POM Tests
 
-Автоматизированный фреймворк для тестирования реального маркетплейса [Kasta.ua](https://kasta.ua)  
-Python + Selenium с использованием Page Object Model (POM).
+Automated testing framework for the real marketplace [Kasta.ua](https://kasta.ua)  
+Built with Python + Selenium using the Page Object Model (POM).
 
-## Структура
+---
 
-- `pages/` – Page Object модели страниц  
-- `tests/` – Тесты по типам:
-  - **smoke** – базовые проверки работоспособности  
-  - **integration** – сценарии взаимодействия нескольких функций  
-  - **regression** – проверка регрессии после изменений  
-- `Dockerfile` – контейнер для запуска тестов  
-- `.github/workflows/` – CI/CD workflow для сборки образа, запуска тестов и генерации Allure-отчёта  
+## 📂 Project Structure
 
-## Просмотр Allure-отчёта
+- `pages/` – Page Object models for the website pages  
+- `tests/` – Tests organized by type:
+  - **smoke** – basic functionality checks  
+  - **integration** – scenarios involving multiple features  
+  - **regression** – regression tests after changes  
+- `Dockerfile` – container for running tests  
+- `.github/workflows/` – CI/CD workflow for building the Docker image, running tests, and generating Allure reports  
 
-После выполнения workflow в GitHub Actions артефакт `allure-report` можно скачать и открыть локально
+---
+
+## 📊 Viewing Allure Reports
+
+After the GitHub Actions workflow runs, the `allure-report` artifact can be downloaded and viewed locally.
